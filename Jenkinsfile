@@ -5,6 +5,7 @@ pipeline {
             steps {
                 script {
                     echo "Testing the application"
+                    echo "Executing pipeline for branch $BRANCH_NAME"
                 }
             }
         }
@@ -13,7 +14,6 @@ pipeline {
             when {
                 expression {
                     BRANCH_NAME == 'master'
-                    echo "Executing pipeline for branch $BRANCH_NAME"
                 }
             }
             steps {
@@ -27,7 +27,6 @@ pipeline {
             when {
                 expression {
                     BRANCH_NAME == 'master'
-                    echo "Executing pipeline for branch $BRANCH_NAME"
                 }
             }
             steps {
