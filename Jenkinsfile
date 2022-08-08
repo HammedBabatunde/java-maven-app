@@ -1,35 +1,23 @@
 #!/usr/bin/env groovy
+
 pipeline {
     agent none
     stages {
-        stage('test') {
+        stage('build') {
             steps {
                 script {
-                    echo "Testing the application"
-                    echo "Executing pipeline for branch $BRANCH_NAME"
+                    echo "Building the application..."
                 }
             }
         }
-
-        stage('build') {
-            when {
-                expression {
-                    BRANCH_NAME == 'master'
-                }
-            }
+        stage('test') {
             steps {
                 script {
                     echo "Testing the application..."
                 }
             }
         }
-
         stage('deploy') {
-            when {
-                expression {
-                    BRANCH_NAME == 'master'
-                }
-            }
             steps {
                 script {
                     echo "Deploying the application..."
