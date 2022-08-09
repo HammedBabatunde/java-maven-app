@@ -1,26 +1,48 @@
 #!/usr/bin/env groovy
 
 pipeline {
-    agent none
-    stages {
-        stage('build') {
+    agent any
+    tools {
+        maven 'Maven'
+    }
+    stages {  
+        stage('increment version') {
             steps {
                 script {
-                    echo "Building the application..."
+                    echo 'Incrementing app version'
+                    sh 'mvn build-helper:parse-version version:set \
+                        -DnewVersion=\\\${parsedVersion.majorVersion}.\\\${parsedVersion.minorVersion}.\\\${parsedVersion.nextIncrementalVersion} \
+                        versions:commit'
+                    def matcher = readFile('pom.xml') =~ '<version>(.+)</version>'
+                    def version = matcher[0][1]
+                    env.IMAGE_NAME = "$version-$BUILD_NUMBER"
                 }
             }
         }
-        stage('test') {
+        stage('build app') {
             steps {
                 script {
-                    echo "Testing the application..."
+                    echo "building the application..."
+                    sh 'mvn clean package'
+                }
+            }
+        }
+        stage('build image') {
+            steps {
+                script {
+                    echo "building the docker image..."
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-repo', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+                        sh "docker build -t hammedbabatunde/my-repo:${IMAGE_NAME} ."
+                        sh "echo $PASS | docker login -u $USER --password-stdin"
+                        sh "docker push hammedbabatunde/my-repo:${IMAGE_NAME}"
+                    }
                 }
             }
         }
         stage('deploy') {
             steps {
                 script {
-                    echo "Deploying the application..."
+                    echo 'deploying docker image to EC2...'
                 }
             }
         }
