@@ -12,6 +12,9 @@ pipeline {
     tools {
         maven 'Maven'
     }
+    environment {
+        IMAGE_NAME = 'hammedbabatunde/demo-app:java-maven-1.0'
+    }
     stages {  
         // stage('increment version') {
         //     steps {
@@ -26,9 +29,7 @@ pipeline {
         //         }
         //     }
         // }
-        environment {
-            IMAGE_NAME = 'hammedbabatunde/demo-app:java-maven-1.0'
-        }
+    
         stage('build app') {
             steps {
                 script {
