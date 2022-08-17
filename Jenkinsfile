@@ -1,5 +1,7 @@
+#!/usr/bin/env groovy
+
 pipeline {
-    agent none
+    agent any
     stages {
         stage('test') {
             steps {
@@ -10,11 +12,6 @@ pipeline {
         }
 
         stage('build') {
-            when {
-                expression {
-                    BRANCH_NAME == 'master'
-                }
-            }
             steps {
                 script {
                     echo "Testing the application..."
@@ -23,14 +20,12 @@ pipeline {
         }
 
         stage('deploy') {
-            when {
-                expression {
-                    BRANCH_NAME == 'master'
-                }
-            }
             steps {
                 script {
-                    echo "Deploying the application..."
+                    def dockerCmd = 'docker run -p 3080:3080 -d hammedbabatunde/demo-app:1.0'
+                    sshagent(['ec2-server-key']) {
+                        sh "ssh -o StrictHostKeyChecking=no babatunde@20.231.202.175 ${dockerCmd}"
+                    }
                 }
             }
         }
