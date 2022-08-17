@@ -50,7 +50,7 @@ pipeline {
         stage('deploy') {
             steps {
                 script {
-                    def dockerCmd = "docker run -p 3080:3080 -d ${IMAGE_NAME}"
+                    def dockerCmd = "docker run -p 8080:8080 -d ${IMAGE_NAME}"
                     sshagent(['ec2-server-key']) {
                         sh "ssh -o StrictHostKeyChecking=no babatunde@20.231.202.175 ${dockerCmd}"
                     }
