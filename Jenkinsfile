@@ -8,7 +8,7 @@ pipeline {
         maven 'Maven'
     }
     environment {
-        IMAGE_NAME = 'hammedbabatunde/demo-app:java-maven-1.0'
+        IMAGE_NAME = 'hammedbabatunde/demo-app:java-maven-2.0'
     }
     stages {  
         // stage('increment version') {
@@ -47,7 +47,8 @@ pipeline {
             steps {
                 script {
                     // def dockerComposeCmd = "sudo docker-compose -f docker-compose.yaml up -d"
-                    def shellCmd = "bash ./server-cmds.sh"
+
+                    def shellCmd = "bash ./server-cmds.sh ${IMAGE_NAME}"
                     sshagent(['ec2-server-key']) {
                         sh "scp server-cmds.sh babatunde@20.231.202.175:/home/babatunde"
                         sh "scp docker-compose.yaml babatunde@20.231.202.175:/home/babatunde"
