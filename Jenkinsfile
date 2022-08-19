@@ -46,16 +46,18 @@ pipeline {
         stage('deploy') {
             steps {
                 script {
-                    def dockerComposeCmd = "sudo docker-compose -f docker-compose.yaml up -d"
+                    // def dockerComposeCmd = "sudo docker-compose -f docker-compose.yaml up -d"
+                    def shellCmd = "bash ./server-cmds.sh"
                     sshagent(['ec2-server-key']) {
+                        sh "scp server-cmds.sh babatunde@20.231.202.175:/home/babatunde"
                         sh "scp docker-compose.yaml babatunde@20.231.202.175:/home/babatunde"
-                        sh "ssh -o StrictHostKeyChecking=no babatunde@20.231.202.175 ${dockerComposeCmd}"
+                        sh "ssh -o StrictHostKeyChecking=no babatunde@20.231.202.175 ${shellCmd}"
                     }
                 }
             }
         }
         // stage ('commit version update') {
-        //     steps {
+        //     steps { 
         //         script {
         //             withCredentials([usernamePassword(credentialsId: 'git-credentials', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
         //                 sh 'git config --global user.email "jenkins@example.com"'
