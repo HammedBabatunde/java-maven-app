@@ -1,4 +1,4 @@
-version: '3.8'
+version: '1.1'
 services:
   java-maven-app: 
     image: hammedbabatunde/demo-app:java-maven-1.0
