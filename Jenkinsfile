@@ -48,7 +48,7 @@ pipeline {
                 script {
                     // def dockerComposeCmd = "sudo docker-compose -f docker-compose.yaml up -d"
 
-                    def shellCmd = "bash ./server-cmds.sh ${IMAGE_NAME}"
+                    def shellCmd = "bash ./server-cmds.sh hammedbabatunde/demo-app:java-maven-2.0"
                     sshagent(['ec2-server-key']) {
                         sh "scp server-cmds.sh babatunde@20.231.202.175:/home/babatunde"
                         sh "scp docker-compose.yaml babatunde@20.231.202.175:/home/babatunde"
