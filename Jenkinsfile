@@ -7,23 +7,21 @@ pipeline {
     tools {
         maven 'Maven'
     }
-    environment {
-        IMAGE_NAME = 'hammedbabatunde/demo-app:java-maven-2.0'
-    }
+
     stages {  
-        // stage('increment version') {
-        //     steps {
-        //         script {
-        //             echo 'incrementing app version...'
-        //             sh 'mvn build-helper:parse-version versions:set \
-        //                 -DnewVersion=\\\${parsedVersion.majorVersion}.\\\${parsedVersion.minorVersion}.\\\${parsedVersion.nextIncrementalVersion} \
-        //                 versions:commit'
-        //             def matcher = readFile('pom.xml') =~ '<version>(.+)</version>'
-        //             def version = matcher[0][1]
-        //             env.IMAGE_NAME = "$version-$BUILD_NUMBER"
-        //         }
-        //     }
-        // }
+        stage('increment version') {
+            steps {
+                script {
+                    echo 'incrementing app version...'
+                    sh 'mvn build-helper:parse-version versions:set \
+                        -DnewVersion=\\\${parsedVersion.majorVersion}.\\\${parsedVersion.minorVersion}.\\\${parsedVersion.nextIncrementalVersion} \
+                        versions:commit'
+                    def matcher = readFile('pom.xml') =~ '<version>(.+)</version>'
+                    def version = matcher[0][1]
+                    env.IMAGE_NAME = "$version-$BUILD_NUMBER"
+                }
+            }
+        }
     
         stage('build app') {
             steps {
@@ -57,23 +55,23 @@ pipeline {
                 }
             }
         }
-        // stage ('commit version update') {
-        //     steps { 
-        //         script {
-        //             withCredentials([usernamePassword(credentialsId: 'git-credentials', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-        //                 sh 'git config --global user.email "jenkins@example.com"'
-        //                 sh 'git config --global user.name "HammedBabatunde"'
+        stage ('commit version update') {
+            steps { 
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'git-credentials', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+                        sh 'git config --global user.email "jenkins@example.com"'
+                        sh 'git config --global user.name "HammedBabatunde"'
 
-        //                 sh 'git status'
-        //                 sh 'git branch'
-        //                 sh 'git config --list'
+                        sh 'git status'
+                        sh 'git branch'
+                        sh 'git config --list'
 
-        //                 sh 'git add .'
-        //                 sh 'git commit -m "ci: version bump"'
-        //                 sh 'git push origin HEAD:jenkins-jobs'
-        //             }
-        //         }
-        //     }
-        // }
+                        sh 'git add .'
+                        sh 'git commit -m "ci: version bump"'
+                        sh 'git push origin HEAD:jenkins-jobs'
+                    }
+                }
+            }
+        }
     }
 }
