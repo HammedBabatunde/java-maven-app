@@ -61,8 +61,8 @@ pipeline {
 
                     // Deploy to Kubernetes
                     echo "deploying the application to kubernetes..."
-                    sh 'envsubt < kubernetes/deployment.yaml | kubectl apply -f -'
-                    sh 'envsubt < kubernetes/service.yaml | kubectl apply -f -'
+                    sh 'envsubst < kubernetes/deployment.yaml | kubectl apply -f -'
+                    sh 'envsubst < kubernetes/service.yaml | kubectl apply -f -'
                 }
             }
         }
