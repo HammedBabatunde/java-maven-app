@@ -33,9 +33,12 @@ pipeline {
             steps {
                 script {
                     echo "building the docker image..."
-                    buildImage(env.IMAGE_NAME)
-                    dockerLogin()
-                    dockerPush(env.IMAGE_NAME)
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-repo', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+                    sh "docker build -t hammedbabatunde/my-repo:${IMAGE_NAME} ."
+                    sh "echo $PASS | docker login -u $USER --password-stdin"
+                    sh "docker push hammedbabatunde/my-repo:${IMAGE_NAME}"
+                    }
+    } 
                 }
             }
         }
@@ -72,7 +75,7 @@ pipeline {
 
                         sh 'git add .'
                         sh 'git commit -m "ci: version bump"'
-                        sh 'git push origin HEAD:jenkins-jobs'
+                        sh 'git push origin HEAD:deploy-on-k8'
                     }
                 }
             }
