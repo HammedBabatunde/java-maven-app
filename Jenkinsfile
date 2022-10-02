@@ -1,75 +1,31 @@
 #!/usr/bin/env groovy
 
-@Library('jenkins-shared-library') _
-
 pipeline {
     agent any
-    tools {
-        maven 'Maven'
-    }
-
-    stages {  
-        stage('increment version') {
-            steps {
-                script {
-                    echo 'incrementing app version...'
-                    sh 'mvn build-helper:parse-version versions:set \
-                        -DnewVersion=\\\${parsedVersion.majorVersion}.\\\${parsedVersion.minorVersion}.\\\${parsedVersion.nextIncrementalVersion} \
-                        versions:commit'
-                    def matcher = readFile('pom.xml') =~ '<version>(.+)</version>'
-                    def version = matcher[0][1]
-                    env.IMAGE_NAME = "hammedbabatunde/demo-app:$version-$BUILD_NUMBER"
-                }
-            }
-        }
-    
+    stages {
         stage('build app') {
             steps {
-                script {
-                    echo "building the application jar..."
-                    buildJar()
-                }
+               script {
+                   echo "building the application..."
+               }
             }
         }
         stage('build image') {
             steps {
                 script {
                     echo "building the docker image..."
-                    buildImage(env.IMAGE_NAME)
-                    dockerLogin()
-                    dockerPush(env.IMAGE_NAME)
                 }
             }
         }
         stage('deploy') {
+            environment {
+               AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
+               AWS_SECRET_ACCESS_KEY = credentials('jenkins_aws_secret_access_key')
+            }
             steps {
                 script {
-                    // def dockerComposeCmd = "sudo docker-compose -f docker-compose.yaml up -d"
-
-                    def shellCmd = "bash ./server-cmds.sh ${IMAGE_NAME}"
-                    sshagent(['ec2-server-key']) {
-                        sh "scp server-cmds.sh babatunde@20.231.202.175:/home/babatunde"
-                        sh "scp docker-compose.yaml babatunde@20.231.202.175:/home/babatunde"
-                        sh "ssh -o StrictHostKeyChecking=no babatunde@20.231.202.175 ${shellCmd}"
-                    }
-                }
-            }
-        }
-        stage ('commit version update') {
-            steps { 
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'git-credentials', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-                        sh 'git config --global user.email "jenkins@example.com"'
-                        sh 'git config --global user.name "HammedBabatunde"'
-
-                        sh 'git status'
-                        sh 'git branch'
-                        sh 'git config --list'
-
-                        sh 'git add .'
-                        sh 'git commit -m "ci: version bump"'
-                        sh 'git push origin HEAD:jenkins-jobs'
-                    }
+                   echo 'deploying docker image...'
+                   sh 'kubectl create deployment nginx-deployment --image=nginx'
                 }
             }
         }
