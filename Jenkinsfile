@@ -44,7 +44,7 @@ pipeline {
         }
         stage('deploy') {
             environment {
-                APP_NAME = java-maven-app
+                APP_NAME = 'java-maven-app'
             }
             steps {
                 script {
