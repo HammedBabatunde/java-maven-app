@@ -16,7 +16,7 @@ pipeline {
                         versions:commit'
                     def matcher = readFile('pom.xml') =~ '<version>(.+)</version>'
                     def version = matcher[0][1]
-                    env.IMAGE_NAME = "hammedbabatunde/my-repo:$version-$BUILD_NUMBER"
+                    env.IMAGE_NAME = "$version-$BUILD_NUMBER"
                 }
             }
         }
@@ -34,15 +34,18 @@ pipeline {
                 script {
                     echo "building the docker image..."
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-repo', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-                        sh "docker build -t ${IMAGE_NAME} ."
+                        sh "docker build -t hammedbabatunde/my-repo:${IMAGE_NAME} ."
                         sh "echo $PASS | docker login -u $USER --password-stdin"
-                        sh "docker push ${IMAGE_NAME}"
+                        sh "docker push hammedbabatunde/my-repo:${IMAGE_NAME}"
                     }
  
                 }
             }
         }
         stage('deploy') {
+            environment {
+                APP_NAME = java-maven-app
+            }
             steps {
                 script {
 
@@ -58,7 +61,8 @@ pipeline {
 
                     // Deploy to Kubernetes
                     echo "deploying the application to kubernetes..."
-                    sh 'kubectl create deployment nginx-deployment --image=nginx'
+                    sh 'envsubt < kubernetes/deployment.yaml | kubectl apply -f -'
+                    sh 'envsubt < kubernetes/service.yaml | kubectl apply -f -'
                 }
             }
         }
