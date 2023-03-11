@@ -53,9 +53,10 @@ pipeline {
                     //         returnStdout: true
                     //     ).trim()
                     // }
+                    }   
                 }
-            }
 
+            }
         }
         // stage('deploy') {
         //     steps {
