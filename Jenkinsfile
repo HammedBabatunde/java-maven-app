@@ -2,8 +2,8 @@
 
 library identifier: 'jenkins-shared-library@master', retriever: modernSCM(
     [$class: 'GitSCMSource',
-     remote: 'https://gitlab.com/nanuchi/jenkins-shared-library.git',
-     credentialsId: 'gitlab-credentials'
+     remote: 'https://github.com/HammedBabatunde/jenkins-shared-library.git',
+     credentialsId: 'git-credentials'
     ]
 )
 
@@ -13,7 +13,7 @@ pipeline {
         maven 'Maven'
     }
     environment {
-        IMAGE_NAME = 'nanajanashia/demo-app:java-maven-2.0'
+        IMAGE_NAME = 'hammedbabatunde/my-repo:java-maven-2.0'
     }
     stages {
         stage('build app') {
@@ -33,6 +33,13 @@ pipeline {
                    dockerPush(env.IMAGE_NAME)
                 }
             }
+        }
+
+
+        stage('provisio server') {
+            // tf commands to provision server
+            sh "terraform init"
+            
         }
         stage('deploy') {
             steps {
