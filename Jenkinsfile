@@ -36,20 +36,40 @@ pipeline {
         }
 
 
-        stage('provisio server') {
+        stage('provision server') {
             // tf commands to provision server
-            sh "terraform init"
-            
+            environment {
+                AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
+                AWS_ACCESS_KEY_ID = credentials('jenkins_aws_secret_access_key')
+                TF_VAR_env_prefix = 'test'
+            }
+            steps {
+                script {
+                    dir('terraform') {
+                        sh 'terraform init'
+                        sh 'terraform apply -auto-approve'
+                        EC2_PUBLIC_IP = sh(
+                            script: "terraform output ec2_public_ip"
+                            returnStdout: true
+                        ).trim()
+                    }
+                }
+            }
+
         }
         stage('deploy') {
             steps {
                 script {
+                    echo : 'waiting for server to be ready...'
+                    sleep(time: 90, unit: 'SECONDS')
+
                    echo 'deploying docker image to EC2...'
+                   echo 'EC2_PUBLIC_IP: ${EC2_PUBLIC_IP}'
 
                    def shellCmd = "bash ./server-cmds.sh ${IMAGE_NAME}"
-                   def ec2Instance = "ec2-user@35.180.251.121"
+                   def ec2Instance = "ec2-user@${EC2_PUBLIC_IP}"
 
-                   sshagent(['ec2-server-key']) {
+                   sshagent(['server-sssh-key']) {
                        sh "scp -o StrictHostKeyChecking=no server-cmds.sh ${ec2Instance}:/home/ec2-user"
                        sh "scp -o StrictHostKeyChecking=no docker-compose.yaml ${ec2Instance}:/home/ec2-user"
                        sh "ssh -o StrictHostKeyChecking=no ${ec2Instance} ${shellCmd}"
