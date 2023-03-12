@@ -47,36 +47,35 @@ pipeline {
                 script {
                     dir('terraform') {
                         sh 'terraform init'
-                    //     sh 'terraform apply -auto-approve'
-                    //     EC2_PUBLIC_IP = sh(
-                    //         script: "terraform output ec2_public_ip",
-                    //         returnStdout: true
-                    //     ).trim()
-                    // }
+                        sh 'terraform apply -auto-approve'
+                        EC2_PUBLIC_IP = sh(
+                            script: "terraform output ec2_public_ip",
+                            returnStdout: true
+                        ).trim()
                     }   
                 }
 
             }
         }
-        // stage('deploy') {
-        //     steps {
-        //         script {
-        //             echo : 'waiting for server to be ready...'
-        //             sleep(time: 90, unit: 'SECONDS')
+        stage('deploy') {
+            steps {
+                script {
+                    echo : 'waiting for server to be ready...'
+                    sleep(time: 90, unit: 'SECONDS')
 
-        //            echo 'deploying docker image to EC2...'
-        //            echo 'EC2_PUBLIC_IP: ${EC2_PUBLIC_IP}'
+                   echo 'deploying docker image to EC2...'
+                   echo 'EC2_PUBLIC_IP: ${EC2_PUBLIC_IP}'
 
-        //            def shellCmd = "bash ./server-cmds.sh ${IMAGE_NAME}"
-        //            def ec2Instance = "ec2-user@${EC2_PUBLIC_IP}"
+                   def shellCmd = "bash ./server-cmds.sh ${IMAGE_NAME}"
+                   def ec2Instance = "ec2-user@${EC2_PUBLIC_IP}"
 
-        //            sshagent(['server-sssh-key']) {
-        //                sh "scp -o StrictHostKeyChecking=no server-cmds.sh ${ec2Instance}:/home/ec2-user"
-        //                sh "scp -o StrictHostKeyChecking=no docker-compose.yaml ${ec2Instance}:/home/ec2-user"
-        //                sh "ssh -o StrictHostKeyChecking=no ${ec2Instance} ${shellCmd}"
-        //            }
-        //         }
-        //     }
-        // }
+                   sshagent(['server-sssh-key']) {
+                       sh "scp -o StrictHostKeyChecking=no server-cmds.sh ${ec2Instance}:/home/ec2-user"
+                       sh "scp -o StrictHostKeyChecking=no docker-compose.yaml ${ec2Instance}:/home/ec2-user"
+                       sh "ssh -o StrictHostKeyChecking=no ${ec2Instance} ${shellCmd}"
+                   }
+                }
+            }
+        }
     }
 }
