@@ -20,7 +20,7 @@ pipeline {
             steps {
                script {
                   echo 'building application jar...'
-                  sh 'mvn clean package'
+                  buildJar()
                }
             }
         }
@@ -29,8 +29,8 @@ pipeline {
                 script {
                    echo 'building docker image...'
                    buildImage(env.IMAGE_NAME)
-                //    dockerLogin()
-                //    dockerPush(env.IMAGE_NAME)
+                   dockerLogin()
+                   dockerPush(env.IMAGE_NAME)
                 }
             }
         }
