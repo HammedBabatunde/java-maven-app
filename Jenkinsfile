@@ -1,11 +1,11 @@
 #!/usr/bin/env groovy
 
-// library identifier: 'jenkins-shared-library@master', retriever: modernSCM(
-//     [$class: 'GitSCMSource',
-//      remote: 'https://github.com/HammedBabatunde/jenkins-shared-library.git',
-//      credentialsId: 'git-credentials'
-//     ]
-// )
+library identifier: 'jenkins-shared-library@master', retriever: modernSCM(
+    [$class: 'GitSCMSource',
+     remote: 'https://github.com/HammedBabatunde/jenkins-shared-library.git',
+     credentialsId: 'git-credentials'
+    ]
+)
 
 pipeline {
     agent any
@@ -28,7 +28,7 @@ pipeline {
             steps {
                 script {
                    echo 'building docker image...'
-                //    buildImage(env.IMAGE_NAME)
+                   buildImage(env.IMAGE_NAME)
                 //    dockerLogin()
                 //    dockerPush(env.IMAGE_NAME)
                 }
