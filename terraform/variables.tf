@@ -17,6 +17,10 @@ variable "instance_type" {
     default = "t2.micro"
 }
 
+variable "jenkins_ip" {
+  default =  "54.85.220.25/32"
+}
+
 variable "region" {
     default = "us-east-1"
 }
